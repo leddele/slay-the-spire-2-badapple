@@ -1,0 +1,62 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.1">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable> 
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        
+        <!-- 【核心改动】新 Mod 的名字 -->
+        <AssemblyName>BadAppleMod</AssemblyName>
+
+        <!-- 路径配置 (保持你之前的 F盘和 H盘设置) -->
+        <Sts2Path>F:\steam\steamapps\common\Slay the Spire 2</Sts2Path>
+        <Sts2DataDir>$(Sts2Path)/data_sts2_windows_x86_64</Sts2DataDir>
+        <GodotPath>H:\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe</GodotPath>
+        
+        <!-- 定义部署的文件夹名 -->
+        <ModFolderName>BadAppleMod</ModFolderName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(Sts2DataDir)/0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="sts2">
+            <HintPath>$(Sts2DataDir)/sts2.dll</HintPath>
+            <Publicize>PublicizeSts</Publicize>
+        </Reference>
+        <Reference Include="BaseLib">
+            <HintPath>$(Sts2Path)/mods/BaseLib.dll</HintPath>
+        </Reference>
+
+        <PackageReference Include="Alchyr.Sts2.ModAnalyzers" Version="*" />
+        <!-- 本地化文件分析：指向新 Mod 的路径 -->
+        <AdditionalFiles Include="BadAppleMod/localization/**/*.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="mod_manifest.json" />
+        <None Include="project.godot"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- 自动部署逻辑 -->
+    <Target Name="CopyToModsFolderOnBuild" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <DestDir>$(Sts2Path)\mods\$(ModFolderName)\</DestDir>
+        </PropertyGroup>
+        <Message Text=">>> 正在部署轻量级替换 Mod 到: $(DestDir)" Importance="high" />
+        <MakeDir Directories="$(DestDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DestDir)" />
+        <Copy SourceFiles="mod_manifest.json" DestinationFolder="$(DestDir)" Condition="Exists('mod_manifest.json')" />
+    </Target>
+
+    <!-- 自动导出 PCK (如果需要打包资源) -->
+    <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)')">
+        <Message Text="正在导出 PCK..." Importance="high"/>
+        <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;Windows Desktop&quot; &quot;$(Sts2Path)/mods/$(ModFolderName)/$(AssemblyName).pck&quot;" />
+    </Target>
+</Project>

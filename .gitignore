@@ -1,0 +1,15 @@
+bin/
+obj/
+
+
+.godot/
+
+*.user
+*.suo
+*.DotSettings.user
+
+lib/
+*.dll
+
+
+*.pck
