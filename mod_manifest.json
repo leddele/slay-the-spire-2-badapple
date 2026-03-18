@@ -1,7 +1,7 @@
 {
   "id": "BadAppleMod",
   "name": "Bad Apple 播放器",
-  "author": "leddele",
+  "author": "leddele,Boninall",
   "version": "1.0.0",
   "description": "按下 H 键在尖塔中欣赏 Bad Apple。",
   "entry_point": "BadApple.Main",
