@@ -2,58 +2,49 @@ using Godot;
 
 namespace BadApple;
 
-public partial class BadApplePlayer : CanvasLayer
+/// <summary>
+/// Plays Bad Apple video as a CanvasLayer overlay.
+/// Does NOT use Godot lifecycle overrides (_Ready/_Input) because
+/// Microsoft.NET.Sdk builds lack the Godot source generator.
+/// Call Setup() after AddChild().
+/// </summary>
+public class BadApplePlayer : CanvasLayer
 {
-    private VideoStreamPlayer _vsp;
-    public bool IsSmallMode = false; // 是否为小窗模式
+    public bool IsSmallMode = false;
 
-    public override void _Ready()
+    /// <summary>
+    /// Must be called after the node is added to the scene tree.
+    /// Replaces _Ready() which won't fire without the source generator.
+    /// </summary>
+    public void Setup()
     {
-        Layer = 128; 
+        Layer = 128;
 
-        _vsp = new VideoStreamPlayer();
-        _vsp.Stream = GD.Load<VideoStream>("res://video/bad_apple.ogv");
-        _vsp.Expand = true;
-        
+        var vsp = new VideoStreamPlayer();
+        vsp.Stream = GD.Load<VideoStream>("res://video/bad_apple.ogv");
+        vsp.Expand = true;
+
         if (IsSmallMode)
         {
-          
-            _vsp.CustomMinimumSize = new Vector2(480, 360);
-            _vsp.Size = new Vector2(480, 360);
-            
-            // 设置位置：右下角
-            // 获取屏幕尺寸并偏移
+            vsp.CustomMinimumSize = new Vector2(480, 360);
+            vsp.Size = new Vector2(480, 360);
+
             Vector2 screenSize = GetViewport().GetVisibleRect().Size;
-            _vsp.Position = new Vector2(screenSize.X - 500, screenSize.Y - 400);
-            
-            // 给小窗加个黑边背景（可选）
+            vsp.Position = new Vector2(screenSize.X - 500, screenSize.Y - 400);
+
             var bg = new ColorRect();
             bg.Color = new Color(0, 0, 0, 1);
-            bg.Size = _vsp.Size;
-            bg.Position = _vsp.Position;
+            bg.Size = vsp.Size;
+            bg.Position = vsp.Position;
             AddChild(bg);
         }
         else
         {
-            // 全屏模式
-            _vsp.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            vsp.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         }
-        
-        AddChild(_vsp);
-        _vsp.Play();
-        _vsp.Finished += () => this.QueueFree();
-    }
 
-    public override void _Input(InputEvent inputEvent)
-    {
-       
-        if (inputEvent is InputEventKey keyEvent && keyEvent.Pressed)
-        {
-            if (keyEvent.Keycode == Key.H || keyEvent.Keycode == Key.J)
-            {
-                this.QueueFree();
-                GetViewport().SetInputAsHandled();
-            }
-        }
+        AddChild(vsp);
+        vsp.Play();
+        vsp.Finished += () => this.QueueFree();
     }
 }
