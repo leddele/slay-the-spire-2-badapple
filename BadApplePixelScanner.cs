@@ -19,6 +19,7 @@ namespace BadApple.Patches;
 /// Controls:
 ///   U       = 重播（从头开始）
 ///   Ctrl+U  = 暂停 / 继续
+///   Shift+U = 切换静音（默认静音）
 /// </summary>
 public class BadApplePixelScanner : Node2D
 {
@@ -31,6 +32,7 @@ public class BadApplePixelScanner : Node2D
     private bool _isActive;
     public bool IsActive => _isActive;
     private bool _isPaused;
+    private bool _isMuted = true;
     private bool _signalConnected;
     private ulong _lastDrawMsec;
 
@@ -102,6 +104,7 @@ public class BadApplePixelScanner : Node2D
     {
         _vsp.Stop();
         _vsp.Paused = false;
+        _vsp.VolumeDb = _isMuted ? -80.0f : 0.0f;
         _vsp.Play();
 
         _isActive = true;
@@ -120,12 +123,20 @@ public class BadApplePixelScanner : Node2D
 
         _isPaused = !_isPaused;
         _vsp.Paused = _isPaused;
-        _vsp.VolumeDb = _isPaused ? -80.0f : 0.0f;
 
         if (_isPaused)
             GD.Print("[BadApple] 已暂停");
         else
             GD.Print("[BadApple] 继续播放");
+    }
+
+    public void ToggleMute()
+    {
+        if (!_isActive) return;
+
+        _isMuted = !_isMuted;
+        _vsp.VolumeDb = _isMuted ? -80.0f : 0.0f;
+        GD.Print($"[BadApple] {(_isMuted ? "已静音" : "已开启声音")}");
     }
 
     /// <summary>

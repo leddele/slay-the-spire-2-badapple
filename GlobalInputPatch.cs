@@ -41,6 +41,12 @@ public static class GlobalInputPatch
             return;
         }
 
+        if (keyEvent.ShiftPressed)
+        {
+            scanner?.ToggleMute();
+            return;
+        }
+
         // Toggle: playing → stop, stopped → start
         if (scanner != null && scanner.IsActive)
         {

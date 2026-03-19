@@ -2,8 +2,8 @@
   "id": "BadAppleMod",
   "name": "Bad Apple 播放器",
   "author": "leddele,Boninall",
-  "version": "1.2.0",
-  "description": "U 键地图影绘（联机自动同步），Ctrl+U 暂停/继续。",
+  "version": "1.3.0",
+  "description": "U 键地图影绘（联机自动同步），Ctrl+U 暂停/继续，Shift+U 切换静音（默认静音）。",
   "entry_point": "BadApple.Main",
   "dll_name": "BadAppleMod.dll",
   "pck_name": "BadAppleMod"
