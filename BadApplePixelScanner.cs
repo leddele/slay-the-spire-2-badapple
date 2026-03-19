@@ -29,6 +29,7 @@ public class BadApplePixelScanner : Node2D
     private ImageTexture? _previewTex;
 
     private bool _isActive;
+    public bool IsActive => _isActive;
     private bool _isPaused;
     private bool _signalConnected;
     private ulong _lastDrawMsec;
@@ -99,10 +100,6 @@ public class BadApplePixelScanner : Node2D
     /// </summary>
     public void Restart()
     {
-        var mousePos = _mapDrawings.GetLocalMousePosition();
-        _drawOffset = mousePos * 0.5f;
-        _previewSprite.Position = _drawOffset;
-
         _vsp.Stop();
         _vsp.Paused = false;
         _vsp.Play();
@@ -123,11 +120,25 @@ public class BadApplePixelScanner : Node2D
 
         _isPaused = !_isPaused;
         _vsp.Paused = _isPaused;
+        _vsp.VolumeDb = _isPaused ? -80.0f : 0.0f;
 
         if (_isPaused)
             GD.Print("[BadApple] 已暂停");
         else
             GD.Print("[BadApple] 继续播放");
+    }
+
+    /// <summary>
+    /// 完全停止播放（视频 + 音频 + 预览）。
+    /// </summary>
+    public void Stop()
+    {
+        _isActive = false;
+        _isPaused = false;
+        _vsp.Paused = false;
+        _vsp.Stop();
+        _previewSprite.Visible = false;
+        GD.Print("[BadApple] 已停止");
     }
 
     // ================================================================
@@ -309,7 +320,7 @@ public class BadApplePixelScanner : Node2D
     //  Video loading: mod folder first, then PCK fallback
     // ================================================================
 
-    private static VideoStream? LoadVideo()
+    internal static VideoStream? LoadVideo()
     {
         try
         {
